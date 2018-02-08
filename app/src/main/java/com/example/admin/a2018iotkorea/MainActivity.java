@@ -1,6 +1,7 @@
 package com.example.admin.a2018iotkorea;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -10,10 +11,14 @@ import android.widget.EditText;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.concurrent.ExecutionException;
+
 public class MainActivity extends AppCompatActivity {
 
     Button signUpButt, signInButt, forgotButt;
     EditText userEmail, userPW;
+
+//    class SignInAsyncTask
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +51,24 @@ public class MainActivity extends AppCompatActivity {
                     session.put("identifier", userEmail.getText());
                     session.put("password", userPW.getText());
                     String str_session = session.toString();
-                  //  String result = new UserManagementThread(MainActivity.this).execute(getString(R.string.sign_in), str_session);
+                    //Get the result from sending user email&password to the server
+                    AsyncTask<String, Void, String> result = new UserManagementThread(MainActivity.this).execute(getString(R.string.sign_in), str_session);
+                    try {
+                        //Convert the result to a string
+                        String stringRes = result.get().toString();
+//                        Toast to = Toast.makeText(MainActivity.this, "Result is"+stringRes, LENGTH_SHORT);
+//                        to.show();
 
+                        JSONObject jResult = new JSONObject(stringRes);
+                        if (jResult.getBoolean("status")) {
+                            Intent intent = new Intent (MainActivity.this, MainPage.class);
+                             startActivity(intent);
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    }
 
                 } catch (JSONException e) {
                     e.printStackTrace();
