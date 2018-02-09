@@ -78,8 +78,7 @@ public class UserManagementThread extends AsyncTask<String, Void, String> {
     }
 
     @Override
-    protected void onPostExecute(String result) { // 쓰레드 끝나고 알아서 호출되는 애.
-        // UI 업데이트가 구현될 부분
+    protected void onPostExecute(String result) {
         Toast.makeText(connContext,"resultCode: " + resultCode , Toast.LENGTH_SHORT).show();
 //        if(resultCode.contains("100"))
 //        {
