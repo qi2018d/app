@@ -28,7 +28,12 @@
         <activity android:name=".VerificationCodePage" />
         <activity android:name=".ChangePWSignedIn" />
         <activity android:name=".ChangePWNotSignedIn" />
-        <activity android:name=".MainPage">
+        <activity android:name=".MainPage"
+            android:configChanges="orientation">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
         </activity>
     </application>
 

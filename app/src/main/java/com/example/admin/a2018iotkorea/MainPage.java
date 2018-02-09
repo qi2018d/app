@@ -22,6 +22,14 @@ public class MainPage extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (isChangingConfigurations()) {
+            ;
+        }
+    }
+
     /*@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
