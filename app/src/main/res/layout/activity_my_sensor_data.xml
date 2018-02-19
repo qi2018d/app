@@ -27,8 +27,8 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
-        app:headerLayout="@layout/nav_header_my_sensor_data"
-        app:menu="@menu/activity_my_sensor_data_drawer" />
+        app:headerLayout="@layout/nav_header_home"
+        app:menu="@menu/activity_home_drawer" />
 
 
 

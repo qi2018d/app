@@ -39,6 +39,9 @@
     <string name="forgotPWVerify">http://teamd-iot.calit2.net/api/app/user/forgotpw/verify</string>
     <string name="forgotPWChange">http://teamd-iot.calit2.net/api/app/user/forgotpw/change</string>
     <string name="heartRateData">http://teamd-iot.calit2.net/api/app/data/send/heart</string>
+    <string name="sendAQIData">http://teamd-iot.calit2.net/api/app/data/send/aqi</string>
+    <string name="sendRealTimeData">http://teamd-iot.calit2.net/api/app/data/send/air</string>
+    <string name="sendHistoricalData">http://teamd-iot.calit2.net/api/app/data/send/air/historical</string>
     <string name="title_activity_home">Home</string>
 
     <!-- TODO: Remove or change this placeholder text -->

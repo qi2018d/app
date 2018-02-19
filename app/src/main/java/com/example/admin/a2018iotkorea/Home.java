@@ -168,12 +168,14 @@ public class Home extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here
         int id = item.getItemId();
-
-        if (id == R.id.mySensor) {
+//TODO WORK HERE
+        if (id == R.id.Home) {
             // Handle the camera action
             Intent intent = new Intent(Home.this, MySensorData.class);
             startActivity(intent);
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.mySensor) {
+            Intent intent = new Intent(Home.this, MySensorData.class);
+            startActivity(intent);
 
         } else if (id == R.id.nav_slideshow) {
 

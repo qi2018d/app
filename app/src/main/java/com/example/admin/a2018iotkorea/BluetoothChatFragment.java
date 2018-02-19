@@ -60,6 +60,8 @@ public class BluetoothChatFragment extends Fragment {
     private static final int REQUEST_CONNECT_DEVICE_INSECURE = 2;
     private static final int REQUEST_ENABLE_BT = 3;
 
+    private String mBluetoothDeviceAddress;
+
     // Layout Views
 //    private ListView mConversationView;
 //    private EditText mOutEditText;
@@ -289,17 +291,6 @@ public class BluetoothChatFragment extends Fragment {
         public void handleMessage(Message msg) {
             FragmentActivity activity = getActivity();
 
-            //////////// Temporary Dummy Data //////////////////
-//            JSONObject jsonPractice = new JSONObject();
-//            try {
-//                jsonPractice.put("o3", "251");
-//                jsonPractice.put("no2", "59");
-//                ((MySensorData) getActivity()).getMYSensorData(jsonPractice.toString(), 0);
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-            ////////////////////////////////////////////////////
-
             switch (msg.what) {
                 case Constants.MESSAGE_STATE_CHANGE:
                     switch (msg.arg1) {
@@ -331,20 +322,26 @@ public class BluetoothChatFragment extends Fragment {
                         //Convert the received string data into a JSONObject
                         JSONObject dataReceived = new JSONObject(readMessage);
 
+                        //Attach the location to the JSONobject
+                        String bluetoothDeviceAddress = getBluetoothDeviceAddress();
+                        dataReceived.put("bd-addr", bluetoothDeviceAddress);
+
                         if (dataReceived.getString("type").equalsIgnoreCase("real-time")) {
-                            JSONObject airQData = dataReceived.getJSONObject("data");
-                            ((MySensorData) getActivity()).getMYSensorData(readMessage, 2);
+//                            JSONObject airQData = dataReceived.getJSONObject("data");
+//                            ((MySensorData) getActivity()).getMYSensorData(readMessage, 2);
 //                            mySensorData.getMYSensorData(readMessage, 0);
+                            ((MySensorData) getActivity()).getMYSensorData(dataReceived.toString(), 1);
+
+//                            ((MySensorData) getActivity()).getMYSensorData(dataReceived.toString(), 2);
                         } else if (dataReceived.getString("type").equalsIgnoreCase("historical")){
                             //TODO get daqa from each JSON object in JSONArray
                             JSONArray airQData = dataReceived.getJSONArray("data");
-                            //Use a while loop to loop through all historical data in JSONArray?
-                            //How to get this data in MySensorData??
+                            ((MySensorData) getActivity()).getMYSensorData(dataReceived.toString(), 2);
                         }
                         else if (dataReceived.getString("type").equalsIgnoreCase("aqi")) {
-                            JSONObject airQData = dataReceived.getJSONObject("data");
-                            Log.d("AQICOming", readMessage);
-                            ((MySensorData) getActivity()).getMYSensorData(readMessage, 0);
+//                            JSONObject airQData = dataReceived.getJSONObject("data");
+                            ((MySensorData) getActivity()).getMYSensorData(dataReceived.toString(), 0);
+
                         }
 
                     } catch (JSONException e) {
@@ -444,4 +441,12 @@ public class BluetoothChatFragment extends Fragment {
         return false;
     }
 
+    public String getBluetoothDeviceAddress() {
+        if (mBluetoothDeviceAddress == null) {
+            return "00:22:D0:9C:FA:7A";
+        }
+        else {
+            return mBluetoothDeviceAddress;
+        }
+    }
 }
