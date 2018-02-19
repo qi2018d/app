@@ -36,6 +36,7 @@ import com.example.admin.a2018iotkorea.ble.BluetoothLeService;
 import com.example.admin.a2018iotkorea.ble.PolarBleService;
 import com.google.android.gms.maps.model.LatLng;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -101,26 +102,28 @@ public class MySensorData extends AppCompatActivity
     public void getMYSensorData(String jsonObject, int type) {
         //0 if AQI Data
         if (type == 0) {
-            getAQIData(jsonObject);
+            getAIRData(jsonObject, 0);
         }
         //1 if Real Time Data
         else if (type == 1) {
-            //Call getHistoricalData
-
+            getAIRData(jsonObject, 1);
+        }
+        else if (type == 2) {
+            sendHistoricalData(jsonObject);
         }
     }
 
-    public void getAQIData(String jsonObject ) {
+    public void getAIRData(String jsonObject, int type ) {
         try {
             JSONObject myData = new JSONObject(jsonObject);
             JSONObject setData = new JSONObject(myData.get("data").toString());
+            String bluetoothDeviceAddress = myData.getString("bd-addr");
             int o3 = setData.getInt("o3");
             int co = setData.getInt("co");
             int no2 = setData.getInt("no2");
             int so2 = setData.getInt("so2");
             int pm2_5 = setData.getInt("pm2_5");
             int time = setData.getInt("time");
-            Log.d("dataCame", "" + o3);
 
             text_o3.setText(Integer.toString(o3));
             text_co.setText(Integer.toString(co));
@@ -134,13 +137,115 @@ public class MySensorData extends AppCompatActivity
             progressChanger(progress_so2, so2);
             progressChanger(progress_pm2_5, pm2_5);
 
+            //Send AQI data to the server
+            JSONObject aqiJSON = new JSONObject();
+            JSONObject locationJSON = new JSONObject();
+
+            //Get user id
+            String user_id = sharedPreferences.getString("global_ver_id", "0");
+
+            // Get current location
+            gps = new GpsInfo(MySensorData.this);
+            if (gps.isGetLocation()) {  // GPS On, NN.XX
+                location = new LatLng(gps.getLatitude(), gps.getLongitude());
+                Log.d("test", location.toString());
+            } else {
+                gps.showSettingsAlert();     // GPS setting Alert
+            }
+
+            //Timestamp
+            Date currTime = new Date();
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String current_date = formatter.format(currTime);
+
+            try {
+                locationJSON.put("lat", location.latitude);
+                locationJSON.put("lng", location.longitude);
+
+                aqiJSON.put("user-id", user_id);
+                aqiJSON.put("bd-addr", bluetoothDeviceAddress);
+                aqiJSON.put("timestamp", current_date);
+                aqiJSON.put("data", setData);
+                aqiJSON.put("location", locationJSON);
+
+                String str_aqiJson = aqiJSON.toString();
+
+                if (type == 0) {
+                    new UserManagementThread(MySensorData.this).execute(getString(R.string.sendAQIData), str_aqiJson);
+                }
+                else {
+                    new UserManagementThread(MySensorData.this).execute(getString(R.string.sendRealTimeData), str_aqiJson);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
-    public void getHistoricalData(String jsonArray){
-        //TODO Use a for loop to get&set historical data
+    public void sendHistoricalData(String jsonObject){
+        try {
+            JSONObject myData = new JSONObject(jsonObject);
+            JSONArray dataArray = new JSONArray(myData.get("data").toString());
+            String bluetoothDeviceAddress = myData.getString("bd-addr");
+
+            JSONArray toSendArray = new JSONArray();
+            JSONObject historicalJSON = new JSONObject();
+
+            //User-id
+            String user_id = sharedPreferences.getString("global_ver_id", "0");
+
+            //Loop through data JSONArray to create message array to send historical data
+            for (int i = 0; i < dataArray.length(); i++) {
+                JSONObject eachJsonMessage = new JSONObject();
+
+                //Timestamp
+//                Date currTime = new Date();
+//                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//                String current_date = formatter.format(currTime);
+
+                //Data
+                JSONObject setData = dataArray.getJSONObject(i);
+                int eachTime = setData.getInt("time");
+                setData.remove("time");
+
+                Date currTime = new Date(eachTime*1000L);
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String current_date = formatter.format(currTime);
+
+                // Location
+                gps = new GpsInfo(MySensorData.this);
+                if (gps.isGetLocation()) {  // GPS On, NN.XX
+                    location = new LatLng(gps.getLatitude(), gps.getLongitude());
+                    Log.d("test", location.toString());
+                } else {
+                    gps.showSettingsAlert();     // GPS setting Alert
+                }
+
+                JSONObject locationJSON = new JSONObject();
+
+                locationJSON.put("lat",location.latitude);
+                locationJSON.put("lng", location.longitude);
+
+                eachJsonMessage.put("timestamp", current_date);
+                eachJsonMessage.put("data", setData);
+                eachJsonMessage.put("location", locationJSON);
+
+                toSendArray.put(eachJsonMessage);
+            }
+
+            historicalJSON.put("user-id", user_id);
+            historicalJSON.put("bd-addr", bluetoothDeviceAddress);
+            historicalJSON.put("message", toSendArray);
+
+            String str_historicalJSON = historicalJSON.toString();
+
+            new UserManagementThread(MySensorData.this).execute(getString(R.string.sendHistoricalData), str_historicalJSON);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -157,14 +262,14 @@ public class MySensorData extends AppCompatActivity
         progress_no2 = (ProgressBar) findViewById(R.id.progress_no2);
         progress_so2 = (ProgressBar) findViewById(R.id.progress_so2);
         progress_pm2_5 = (ProgressBar) findViewById(R.id.progress_pm25);
-        progress_temp = (ProgressBar) findViewById(R.id.progress_temp);
+//        progress_temp = (ProgressBar) findViewById(R.id.progress_temp);
 
         initProgress(progress_o3,aqi_max);
         initProgress(progress_co,aqi_max);
         initProgress(progress_no2,aqi_max);
         initProgress(progress_so2,aqi_max);
         initProgress(progress_pm2_5,aqi_max);
-        initProgress(progress_temp,aqi_max);
+//        initProgress(progress_temp,aqi_max);
 
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -194,7 +299,7 @@ public class MySensorData extends AppCompatActivity
         text_no2 = (TextView) findViewById(R.id.text_no2);
         text_so2 = (TextView) findViewById(R.id.text_so2);
         text_pm2_5 = (TextView) findViewById(R.id.text_pm25);
-        text_temp = (TextView) findViewById(R.id.text_temp);
+//        text_temp = (TextView) findViewById(R.id.text_temp);
 
 
         locationPermissionCheck();
@@ -234,9 +339,13 @@ public class MySensorData extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.Home) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+            Intent intent = new Intent(MySensorData.this, Home.class);
+            startActivity(intent);
+        } else if (id == R.id.mySensor) {
+            Intent intent = new Intent(MySensorData.this, MySensorData.class);
+            startActivity(intent);
 
         } else if (id == R.id.nav_slideshow) {
 
@@ -410,16 +519,5 @@ public class MySensorData extends AppCompatActivity
         return intentFilter;
     }
 
-    public String getLocalBluetoothName() {
-        if (mBluetoothAdapter == null) {
-            mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        }
-        String name = mBluetoothAdapter.getName();
-        if (name == null) {
-            System.out.println("Name is null!");
-            name = mBluetoothAdapter.getAddress();
-        }
-        return name;
-    }
 
 }
