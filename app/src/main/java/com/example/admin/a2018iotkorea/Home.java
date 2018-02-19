@@ -1,6 +1,7 @@
 package com.example.admin.a2018iotkorea;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,7 +13,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -35,7 +35,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ObjectStreamException;
 import java.util.concurrent.ExecutionException;
 
 public class Home extends AppCompatActivity
@@ -55,6 +54,8 @@ public class Home extends AppCompatActivity
     private String locationName;
     private LatLng location;
     GpsInfo gps;
+
+    SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +105,9 @@ public class Home extends AppCompatActivity
         });
 
 //        locationChange();
+
+        sharedPreferences = getSharedPreferences("global_user_id", 0);
+
     }
 
     @Override
@@ -171,13 +175,22 @@ public class Home extends AppCompatActivity
 //TODO WORK HERE
         if (id == R.id.Home) {
             // Handle the camera action
-            Intent intent = new Intent(Home.this, MySensorData.class);
+            Intent intent = new Intent(Home.this, Home.class);
             startActivity(intent);
+            finish();
         } else if (id == R.id.mySensor) {
             Intent intent = new Intent(Home.this, MySensorData.class);
             startActivity(intent);
+            finish();
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.signOut) {
+            SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
+            sharedPreferencesEditor.remove("global_user_id");
+            sharedPreferencesEditor.commit();
+
+            Intent intent = new Intent(Home.this, MainActivity.class);
+            startActivity(intent);
+            finish();
 
         } else if (id == R.id.nav_manage) {
 

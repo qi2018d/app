@@ -50,7 +50,7 @@ public class ChangePWNotSignedIn extends AppCompatActivity {
                         JSONObject jResult = new JSONObject(result);
                         if (jResult.getBoolean("status")) {
                             //When the user forgets his pw and changes it, go to main page
-                            Intent intent = new Intent(ChangePWNotSignedIn.this, MainPage.class);
+                            Intent intent = new Intent(ChangePWNotSignedIn.this, Home.class);
                             startActivity(intent);
                         }
                     } catch (JSONException e) {

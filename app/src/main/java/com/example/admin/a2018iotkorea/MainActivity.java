@@ -1,6 +1,7 @@
 package com.example.admin.a2018iotkorea;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -16,6 +17,7 @@ public class MainActivity extends AppCompatActivity {
 
     Button signUpButt, signInButt, forgotButt;
     EditText userEmail, userPW;
+    SharedPreferences sharedPreferences;
 
 //    class SignInAsyncTask
 
@@ -31,14 +33,15 @@ public class MainActivity extends AppCompatActivity {
         userEmail = (EditText) findViewById(R.id.emailText);
         userPW = (EditText) findViewById(R.id.password);
 
+        sharedPreferences = getSharedPreferences("global_user_id", 0);
+
+
 
         signUpButt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
                 startActivity(intent);
-//                Intent intent = new Intent(MainActivity.this, Home.class);
-//                startActivity(intent);
             }
         });
 
@@ -62,8 +65,16 @@ public class MainActivity extends AppCompatActivity {
 
                     JSONObject jResult = new JSONObject(result);
                         if (jResult.getBoolean("status")) {
+                            JSONObject messageJSON = jResult.getJSONObject("message");
+                            int userIDMessage = messageJSON.getInt("user_id");
+
+                            SharedPreferences.Editor preferencesEditor = sharedPreferences.edit();
+                            preferencesEditor.putInt("global_user_id", userIDMessage);
+                            preferencesEditor.commit();
+
                             Intent intent = new Intent (MainActivity.this, Home.class);
                             startActivity(intent);
+                            finish();
                         }
 
                 } catch (JSONException e) {
@@ -75,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         forgotButt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent (MainActivity.this, MainPage.class);
+                Intent intent = new Intent (MainActivity.this, ForgotPassword.class);
                 startActivity(intent);
             }
         });

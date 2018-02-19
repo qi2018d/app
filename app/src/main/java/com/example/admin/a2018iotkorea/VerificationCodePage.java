@@ -71,7 +71,7 @@ public class VerificationCodePage extends AppCompatActivity {
                     if (jResult.getBoolean("status")) {
                         //If verifying sign up, then next page is the main home page
                         if (verificationType == 1) {
-                            Intent intent = new Intent (VerificationCodePage.this, MainPage.class);
+                            Intent intent = new Intent (VerificationCodePage.this, Home.class);
                             startActivity(intent);
                         }
                         //if verifying for a forgotten pw, then next page is change pw page

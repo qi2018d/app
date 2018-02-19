@@ -142,7 +142,7 @@ public class MySensorData extends AppCompatActivity
             JSONObject locationJSON = new JSONObject();
 
             //Get user id
-            String user_id = sharedPreferences.getString("global_ver_id", "0");
+            int user_id = sharedPreferences.getInt("global_user_id", 0);
 
             // Get current location
             gps = new GpsInfo(MySensorData.this);
@@ -194,7 +194,7 @@ public class MySensorData extends AppCompatActivity
             JSONObject historicalJSON = new JSONObject();
 
             //User-id
-            String user_id = sharedPreferences.getString("global_ver_id", "0");
+            int user_id = sharedPreferences.getInt("global_user_id", 0);
 
             //Loop through data JSONArray to create message array to send historical data
             for (int i = 0; i < dataArray.length(); i++) {
@@ -343,11 +343,20 @@ public class MySensorData extends AppCompatActivity
             // Handle the camera action
             Intent intent = new Intent(MySensorData.this, Home.class);
             startActivity(intent);
+            finish();
         } else if (id == R.id.mySensor) {
             Intent intent = new Intent(MySensorData.this, MySensorData.class);
             startActivity(intent);
+            finish();
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.signOut) {
+            SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
+            sharedPreferencesEditor.remove("global_user_id");
+            sharedPreferencesEditor.commit();
+
+            Intent intent = new Intent(MySensorData.this, MainActivity.class);
+            startActivity(intent);
+            finish();
 
         } else if (id == R.id.nav_manage) {
 
@@ -461,7 +470,7 @@ public class MySensorData extends AppCompatActivity
                 }
 
                 //Get user id
-                String user_id = sharedPreferences.getString("global_ver_id", "0");
+                int user_id = sharedPreferences.getInt("global_user_id", 0);
 
                 Date currTime = new Date();
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
