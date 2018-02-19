@@ -27,6 +27,7 @@ import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -36,11 +37,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * This fragment controls Bluetooth to communicate with other devices.
@@ -49,15 +51,19 @@ public class BluetoothChatFragment extends Fragment {
 
     private static final String TAG = "BluetoothChatFragment";
 
+    MySensorData mySensorData;
+
+//    Context mySensorDataContext;
+
     // Intent request codes
     private static final int REQUEST_CONNECT_DEVICE_SECURE = 1;
     private static final int REQUEST_CONNECT_DEVICE_INSECURE = 2;
     private static final int REQUEST_ENABLE_BT = 3;
 
     // Layout Views
-    private ListView mConversationView;
-    private EditText mOutEditText;
-    private Button mSendButton;
+//    private ListView mConversationView;
+//    private EditText mOutEditText;
+//    private Button mSendButton;
 
     /**
      * Name of the connected device
@@ -84,12 +90,18 @@ public class BluetoothChatFragment extends Fragment {
      */
     private BluetoothChatService mChatService = null;
 
+//    public BluetoothChatFragment(Context context) {
+//        mySensorDataContext = context;
+//    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         // Get local Bluetooth adapter
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        mySensorData = new MySensorData();
 
         // If the adapter is null, then Bluetooth is not supported
         if (mBluetoothAdapter == null) {
@@ -146,9 +158,9 @@ public class BluetoothChatFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        mConversationView = (ListView) view.findViewById(R.id.in);
-        mOutEditText = (EditText) view.findViewById(R.id.edit_text_out);
-        mSendButton = (Button) view.findViewById(R.id.button_send);
+//        mConversationView = (ListView) view.findViewById(R.id.in);
+//        mOutEditText = (EditText) view.findViewById(R.id.edit_text_out);
+//        mSendButton = (Button) view.findViewById(R.id.button_send);
     }
 
     /**
@@ -159,7 +171,7 @@ public class BluetoothChatFragment extends Fragment {
         // Initialize the array adapter for the conversation thread
         mConversationArrayAdapter = new ArrayAdapter<String>(getActivity(), R.layout.message);
 
-        mConversationView.setAdapter(mConversationArrayAdapter);
+/*        mConversationView.setAdapter(mConversationArrayAdapter);
 
         // Initialize the compose field with a listener for the return key
         mOutEditText.setOnEditorActionListener(mWriteListener);
@@ -176,7 +188,7 @@ public class BluetoothChatFragment extends Fragment {
                 }
             }
         });
-
+*/
         // Initialize the BluetoothChatService to perform bluetooth connections
         mChatService = new BluetoothChatService(getActivity(), mHandler);
 
@@ -216,7 +228,7 @@ public class BluetoothChatFragment extends Fragment {
 
             // Reset out string buffer to zero and clear the edit text field
             mOutStringBuffer.setLength(0);
-            mOutEditText.setText(mOutStringBuffer);
+ //           mOutEditText.setText(mOutStringBuffer);
         }
     }
 
@@ -276,6 +288,18 @@ public class BluetoothChatFragment extends Fragment {
         @Override
         public void handleMessage(Message msg) {
             FragmentActivity activity = getActivity();
+
+            //////////// Temporary Dummy Data //////////////////
+//            JSONObject jsonPractice = new JSONObject();
+//            try {
+//                jsonPractice.put("o3", "251");
+//                jsonPractice.put("no2", "59");
+//                ((MySensorData) getActivity()).getMYSensorData(jsonPractice.toString(), 0);
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+            ////////////////////////////////////////////////////
+
             switch (msg.what) {
                 case Constants.MESSAGE_STATE_CHANGE:
                     switch (msg.arg1) {
@@ -302,6 +326,32 @@ public class BluetoothChatFragment extends Fragment {
                     byte[] readBuf = (byte[]) msg.obj;
                     // construct a string from the valid bytes in the buffer
                     String readMessage = new String(readBuf, 0, msg.arg1);
+
+                    try {
+                        //Convert the received string data into a JSONObject
+                        JSONObject dataReceived = new JSONObject(readMessage);
+
+                        if (dataReceived.getString("type").equalsIgnoreCase("real-time")) {
+                            JSONObject airQData = dataReceived.getJSONObject("data");
+                            ((MySensorData) getActivity()).getMYSensorData(readMessage, 2);
+//                            mySensorData.getMYSensorData(readMessage, 0);
+                        } else if (dataReceived.getString("type").equalsIgnoreCase("historical")){
+                            //TODO get daqa from each JSON object in JSONArray
+                            JSONArray airQData = dataReceived.getJSONArray("data");
+                            //Use a while loop to loop through all historical data in JSONArray?
+                            //How to get this data in MySensorData??
+                        }
+                        else if (dataReceived.getString("type").equalsIgnoreCase("aqi")) {
+                            JSONObject airQData = dataReceived.getJSONObject("data");
+                            Log.d("AQICOming", readMessage);
+                            ((MySensorData) getActivity()).getMYSensorData(readMessage, 0);
+                        }
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    Log.d("[BT_CLASSIC]", readMessage);
                     mConversationArrayAdapter.add(mConnectedDeviceName + ":  " + readMessage);
                     break;
                 case Constants.MESSAGE_DEVICE_NAME:

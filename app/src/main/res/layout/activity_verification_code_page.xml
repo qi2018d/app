@@ -40,7 +40,7 @@
                 tools:layout_editor_absoluteY="85dp">
 
                 <EditText
-                    android:id="@+id/editText9"
+                    android:id="@+id/verificationCode"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="30dp"

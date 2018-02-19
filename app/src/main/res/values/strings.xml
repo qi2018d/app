@@ -32,7 +32,18 @@
     <string name="discoverable">Make discoverable</string>
 
     <!-- URLs -->
-    <string name="sign_in">http://teamd-iot.calit2.net/api/user/signin</string>
-    <string name="sign_up">http://teamd-iot.calit2.net/api/user/signup</string>
+    <string name="sign_in">http://teamd-iot.calit2.net/api/app/user/signin</string>
+    <string name="sign_up">http://teamd-iot.calit2.net/api/app/user/signup</string>
+    <string name="signUpVerify">http://teamd-iot.calit2.net/api/app/user/signup/verify</string>
+    <string name="forgotPWEmail">http://teamd-iot.calit2.net/api/app/user/forgotpw</string>
+    <string name="forgotPWVerify">http://teamd-iot.calit2.net/api/app/user/forgotpw/verify</string>
+    <string name="forgotPWChange">http://teamd-iot.calit2.net/api/app/user/forgotpw/change</string>
+    <string name="heartRateData">http://teamd-iot.calit2.net/api/app/data/send/heart</string>
+    <string name="title_activity_home">Home</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_my_sensor_data">MySensorData</string>
+
 
 </resources>

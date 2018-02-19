@@ -37,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
                 startActivity(intent);
+//                Intent intent = new Intent(MainActivity.this, Home.class);
+//                startActivity(intent);
             }
         });
 
@@ -51,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
                     session.put("password", userPW.getText());
                     String str_session = session.toString();
                     //Get the result from sending user email&password to the server
-//                    AsyncTask<String, Void, String> result = new UserManagementThread(MainActivity.this).execute(getString(R.string.sign_in), str_session);
                     String result = null;
                     try {
                         result = new UserManagementThread(MainActivity.this).execute(getString(R.string.sign_in), str_session).get();
@@ -60,36 +61,23 @@ public class MainActivity extends AppCompatActivity {
                     } catch (ExecutionException e) {
                         e.printStackTrace();
                     }
-//                    try {
-                        //Convert the result to a string
-                        //String stringRes = result.get().toString();
-//                        Toast to = Toast.makeText(MainActivity.this, "Result is"+stringRes, LENGTH_SHORT);
-//                        to.show();
 
                         JSONObject jResult = new JSONObject(result);
                         if (jResult.getBoolean("status")) {
-                            Intent intent = new Intent (MainActivity.this, MainPage.class);
-                             startActivity(intent);
+                            Intent intent = new Intent (MainActivity.this, Home.class);
+                            startActivity(intent);
                         }
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    } catch (ExecutionException e) {
-//                        e.printStackTrace();
-//                    }
 
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
-//                Intent intent = new Intent (MainActivity.this, MainPage.class);
-//                startActivity(intent);
             }
         });
 
         forgotButt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent (MainActivity.this, ForgotPassword.class);
+                Intent intent = new Intent (MainActivity.this, MainPage.class);
                 startActivity(intent);
             }
         });

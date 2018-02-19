@@ -27,7 +27,7 @@
         <LinearLayout
             android:id="@+id/EmailAddress"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="70dp"
             android:layout_marginTop="50dp"
             android:orientation="horizontal"
             tools:layout_editor_absoluteX="8dp"
@@ -51,7 +51,7 @@
                 <EditText
                     android:id="@+id/emailText"
                     android:layout_width="284dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:backgroundTint="@android:color/darker_gray"
                     android:hint="Email Address"
                     android:singleLine="true"
@@ -63,7 +63,7 @@
         <LinearLayout
             android:id="@+id/Password"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="70dp"
             android:layout_marginBottom="50dp"
             android:orientation="horizontal">
 

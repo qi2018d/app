@@ -9,9 +9,17 @@
     tools:openDrawer="start">
 
     <include
-        layout="@layout/app_bar_main_page"
+        layout="@layout/app_bar_my_sensor_data"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <fragment
+        android:id="@+id/sample_content_fragment"
+        android:name="com.example.admin.a2018iotkorea.BluetoothChatFragment"
+        android:layout_width="383dp"
+        android:layout_height="513dp"
+        tools:layout_editor_absoluteX="1dp"
+        tools:layout_editor_absoluteY="2dp" />
 
     <android.support.design.widget.NavigationView
         android:id="@+id/nav_view"
@@ -19,7 +27,9 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
-        app:headerLayout="@layout/nav_header_main_page"
-        app:menu="@menu/activity_main_page_drawer" />
+        app:headerLayout="@layout/nav_header_my_sensor_data"
+        app:menu="@menu/activity_my_sensor_data_drawer" />
+
+
 
 </android.support.v4.widget.DrawerLayout>
