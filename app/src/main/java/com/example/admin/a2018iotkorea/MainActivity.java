@@ -56,13 +56,11 @@ public class MainActivity extends AppCompatActivity {
                     String result = null;
                     try {
                         result = new UserManagementThread(MainActivity.this).execute(getString(R.string.sign_in), str_session).get();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (ExecutionException e) {
+                    } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();
                     }
 
-                        JSONObject jResult = new JSONObject(result);
+                    JSONObject jResult = new JSONObject(result);
                         if (jResult.getBoolean("status")) {
                             Intent intent = new Intent (MainActivity.this, Home.class);
                             startActivity(intent);

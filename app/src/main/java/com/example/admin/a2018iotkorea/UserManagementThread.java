@@ -79,7 +79,7 @@ public class UserManagementThread extends AsyncTask<String, Void, String> {
 
     @Override
     protected void onPostExecute(String result) {
-        Toast.makeText(connContext,"resultCode: " + resultCode , Toast.LENGTH_SHORT).show();
+        //Toast.makeText(connContext,"resultCode: " + resultCode , Toast.LENGTH_SHORT).show();
 //        if(resultCode.contains("100"))
 //        {
 //            Toast.makeText(connContext,"Welcome!!!", Toast.LENGTH_SHORT).show();

@@ -27,11 +27,20 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.ObjectStreamException;
+import java.util.concurrent.ExecutionException;
+
 public class Home extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback{
+        implements NavigationView.OnNavigationItemSelectedListener,
+        OnMapReadyCallback, GoogleMap.OnCameraIdleListener{
 
     // Intent request codes
 //    private static final int REQUEST_CONNECT_DEVICE_SECURE = 1;
@@ -54,21 +63,12 @@ public class Home extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        gps = new GpsInfo(Home.this);
-        if (gps.isGetLocation()) {  // GPS On, NN.XX
-            location = new LatLng(gps.getLatitude(), gps.getLongitude());
-            Log.d("test", location.toString());
-        } else {
-            gps.showSettingsAlert();     // GPS setting Alert
-        }
 
         //Get location permission
         locationPermissionCheck();
 //        LatLngBounds bounds= mMap.getProjection().getVisibleRegion().latLngBounds;
 //        LatLng north = bounds.northeast;
 //        LatLng south = bounds.southwest;
-
-
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -79,9 +79,9 @@ public class Home extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        MapFragment mapFragment = (MapFragment) getFragmentManager()
-                .findFragmentById(R.id.mMap);
+        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mMap);
         mapFragment.getMapAsync(this);
+
 
         //Google Search Bar
         PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
@@ -196,6 +196,16 @@ public class Home extends AppCompatActivity
         mMap = googleMap;
  //       markerInitialize();
         mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.mapstyle_retro));
+        gps = new GpsInfo(Home.this);
+        if (gps.isGetLocation()) {  // GPS On, NN.XX
+            location = new LatLng(gps.getLatitude(), gps.getLongitude());
+            CameraPosition cameraPosition = new CameraPosition.Builder().target(location).zoom(17).build();
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+        } else {
+            gps.showSettingsAlert();     // GPS setting Alert
+        }
+        mMap.setOnCameraIdleListener(this);
     }
 
     public void markerInitialize(){
@@ -224,5 +234,55 @@ public class Home extends AppCompatActivity
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     0);
         }
+    }
+
+    @Override
+    public void onCameraIdle() {
+        LatLngBounds bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
+        LatLng southwest = bounds.southwest;
+        LatLng northeast = bounds.northeast;
+
+        JSONObject body = new JSONObject();
+
+        try {
+            body.put("south", Double.toString(southwest.latitude));
+            body.put("west", Double.toString(southwest.longitude));
+            body.put("north", Double.toString(northeast.latitude));
+            body.put("east", Double.toString(northeast.longitude));
+            String str_body = body.toString();
+
+            //Get the result from sending user email&password to the server
+            String result = null;
+            try {
+                result = new UserManagementThread(Home.this).execute(getString(R.string.getMapAirData), str_body).get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+
+
+            JSONObject jResult = new JSONObject(result);
+            if (jResult.getBoolean("status")) {
+                JSONArray airDataSet = jResult.getJSONArray("message");
+
+                for( int i =0; i<airDataSet.length(); i++){
+                    JSONObject airData = airDataSet.getJSONObject(i);
+                    String infoString =
+                            "O3: " + airData.getDouble("O3") +"\n"+
+                            "CO: " + airData.getDouble("CO") +"\n"+
+                            "NO2: " + airData.getDouble("NO2") +"\n"+
+                            "SO2: " + airData.getDouble("SO2") +"\n"+
+                            "PM 2.5: " + airData.getDouble("PM") +"\n";
+                    mMap.addMarker(new MarkerOptions()
+                            .position(new LatLng(airData.getDouble("lat"), airData.getDouble("lng")))
+                            .title("Air Quality Index")
+                            .snippet(infoString));
+
+                }
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 }
